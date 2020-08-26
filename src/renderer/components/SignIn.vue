@@ -33,7 +33,7 @@
                                             <input type="email" v-model="email" placeholder="chathub@example.com" class="text-lg h-full p-2 bg-gray-100 rounded" style="width:100%"/>
                                         </div>
                                         <div class="mb-2  py-1">
-                                            <span class="float-left text-gray-600 py-1">パスワード</span>
+                                            <label class="float-left text-gray-600 py-1">パスワード</label>
                                             <input type="password" v-model="password" class="text-xl p-2 bg-gray-100 rounded" placeholder="password" style="width:100%"/>
                                         </div>
                                         <div v-if="errors.length">
@@ -53,10 +53,19 @@
                 </div>
             </div>
         </div>
-        <footer class="flex justify-between p-6 border-b items-center" style="background: linear-gradient(90deg, #6ee887 ,#00d9b4)">
-        </footer>
+        <footer></footer>
     </div>
 </template>
+
+<style lang="scss">
+
+    footer{
+        display: block;
+        width: 100%;
+        height: 10px;
+        background: linear-gradient(90deg, #6ee887 ,#00d9b4);
+    }
+</style>
 
 <script>
     import firebase from "firebase/app";

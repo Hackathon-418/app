@@ -1,13 +1,13 @@
 <template>
-    <div class="flex h-screen">
-        <div class="w-1/5 text-black pt-3 px-4" style="background: linear-gradient(-45deg, #00d9b4, #6ee887)">
-            <div class="flex">
-                <img src="../assets/logo.png" class="h-16 pl-10 " style="filter : drop-shadow(1px 2px 0px #888)">
-                <h1 class="font-semibold text-black leading-tight mt-2 pl-4 text-3xl" style="text-shadow:1px 2px 0 #555">Chat Hub</h1>
+    <div id="index">
+        <nav>
+            <div id="logo_area">
+                <img src="../assets/logo.png">
+                <h1>Chat Hub</h1>
             </div>
             <div class="flex items-center">
-                <span class="bg-red-400 rounded-full w-3 h-3 mr-2"></span>
-                <span class="">{{ user.email }}</span>
+                <span class="online_status"></span>
+                <span>{{ user.email }}</span>
             </div>
             <div class="mt-5 flex justify-between items-center">
                 <div class="font-bold  text-lg">チャンネル</div>
@@ -53,21 +53,16 @@
                 <div class="font-bold text-lg">ダイレクトメッセージ</div>
             </div>
             <div class="mt-2 flex items-center" v-for="user in users" :key="user.user_id">
-                <span class="rounded-full w-3 h-3 mr-2" :class="[isOnline(user) ? 'bg-red-400' : 'bg-gray-600']"></span>
+                <span :class="[isOnline(user) ? 'online_status' : 'offline_status']"></span>
                 <span class="" @click="directMessage(user)">{{ user.email }}</span>
             </div>
-        </div>
+        </nav>
 
-        <div class="flex-grow bg-gray-100" style="height: 90%">
-            <header class="border-b">
-                <div class="flex justify-between m-3">
-                    <div>
-                        <div class="font-bold text-lg">{{ channel_name }}</div>
-                    </div>
-                    <div class="flex items-center">
-                        <button class="py-2 px-4 bg-orange-500 text-white rounded font-semibold" @click="signOut">サインアウト</button>
-                    </div>
-                </div>
+        <!-- Chat -->
+        <div id="chanel_area">
+            <header>
+                <h2>{{ channel_name }}</h2>
+                <button class="py-2 px-4 bg-orange-500 text-white rounded font-semibold" @click="signOut">サインアウト</button>
             </header>
             <main style="height: 95%;"
                   class="overflow-y-scroll relative border-t"
@@ -156,10 +151,75 @@
     </div>
 </template>
 
+<style lang="scss">
+    @font-face {
+        font-family: 'JapaneseFont';
+        src: url('~@/assets/font/KosugiMaru-Regular.ttf') format('truetype');
+    }
+    #index{
+        display: flex;
+        font-family: 'JapaneseFont';
+        user-select: none;
+    }
+    nav{
+        display: inline-block;
+        width: 290px;
+        height: 100vh;
+        padding-left: 15px;
+        background: linear-gradient(-45deg, #00d9b4, #6ee887);
+        vertical-align: top;
+        color: #FFFFFF;
+        #logo_area{
+            margin: 10px 0 0;
+            cursor: default;
+            img{
+                display: inline-block;
+                width: 40px;
+                height: 40px;
+                vertical-align: middle;
+            }
+            h1{
+                display: inline-block;
+                font-size: 1.5em;
+                vertical-align: middle;
+            }
+        }
+        .online_status{
+            display: inline-block;
+            background: #ff4f4c;
+            border-radius: 10px;
+            width: 10px;
+            height: 10px;
+        }
+        .offline_status{
+            display: inline-block;
+            background: #c4c4c4;
+            border-radius: 10px;
+            width: 10px;
+            height: 10px;
+        }
+    }
+    #chanel_area{
+        display: inline-block;
+        width: auto;
+        vertical-align: top;
+    }
+    header{
+        width: 100%;
+        height: 100px;
+        border-bottom: solid 2px #888888;
+        h2{
+            font-weight: bold;
+            font-size: 2em;
+        }
+    }
+</style>
+
 <script>
     import firebase from "firebase/app";
     import "firebase/auth";
     import "firebase/storage";
+    import "firebase/database";
 
     import PlusCircle from "./icons/PlusCircle";
     import Avator from "./Avator";
