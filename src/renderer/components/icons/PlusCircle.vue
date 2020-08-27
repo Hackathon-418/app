@@ -1,7 +1,6 @@
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" 
-  viewBox="0 0 24 24" 
-  class="h-6 w-6 fill-current text-black opacity-75"
+  viewBox="0 0 24 24"
   >
   <path 
   class="heroicon-ui" 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img :src="avator_url" class="rounded" />
+    <img :src="avator_url" class="avator_image" />
   </div>
 </template>
 
