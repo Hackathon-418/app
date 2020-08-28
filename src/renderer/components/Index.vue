@@ -136,6 +136,7 @@
                         </div>
                     </div>
                     <div id="send_message">
+                        <span id="sendProgress" v-bind:style="{ width: progressWidth + '%' }"></span>
                         <textarea
                                 :placeholder="placeholder"
                                 v-model="message"
@@ -402,12 +403,17 @@
             height: 20vh;
             width: 100%;
             border-top: solid 2px #000000;
-            margin: 0;
-            padding-top: 1%;
+            #sendProgress{
+                display: block;
+                margin-top: -2px;
+                height: 2px;
+                width: 10%;
+                background: #eec000;
+            }
             textarea{
                 border: none;
                 width: 96%;
-                margin-left: 2%;
+                margin: 1% 0 0 2%;
                 height: 11vh;
                 resize: none;
                 background: none;
@@ -503,6 +509,7 @@
                 },
                 commandProgress: 0,
                 userObj: [],
+                progressWidth: 0,
             };
         },
         methods: {
@@ -537,15 +544,41 @@
                 ];
 
                 // コマンド実行
+                setTimeout(
+                    this.progressSet(15),
+                    200
+                );
                 this.exe(commands[0], this.localRipository.workDir).on("close",(code) => {
+                    this.progressWidth = 33;
+                    setTimeout(
+                        this.progressSet(50),
+                        200
+                    );
                     this.exe(commands[1], this.localRipository.workDir).on("close",(code) => {
+                        this.progressWidth = 66;
+                        setTimeout(
+                            this.progressSet(88),
+                            500
+                        );
+                        setTimeout(
+                            this.progressSet(90),
+                            1000
+                        );
                         this.exe(commands[2], this.localRipository.workDir).on("close",(code) => {
+                            this.progressWidth = 100;
                             console.log('push complete');
                             this.messageCategory = 'upload';
                             this.sendMessage();
+                            setTimeout(
+                                this.progressSet(0),
+                                1000
+                            );
                         });
                     });
                 });
+            },
+            progressSet(progress){
+                this.progressWidth = progress;
             },
             gitClone() {    // リモートリポジトリのクローン
                 // コマンド定義
