@@ -503,6 +503,8 @@
             gitClone() {    // リモートリポジトリのクローン
                 // コマンド定義
                 const command = 'git clone ' + this.targetRepository;
+                // ディレクトリの作成
+                this.makeDirectory(this.pwd + this.localRipository.parentDir);
                 // コマンド実行
                 this.exe(command, this.pwd + this.localRipository.parentDir);
                 // 更新の確認
@@ -526,6 +528,20 @@
                     this.exe(command, HOMEDIR);
                 }else{          // Mac(FInder)
                     const command = 'open ' + this.workDir;
+                    this.exe(command, HOMEDIR);
+                }
+            },
+            makeDirectory(pwd) {
+                // ディレクトリ存在確認
+                if(! fs.existsSync(pwd)) {
+                    let command;
+                    // OS毎にコマンド定義
+                    if (is_windows) {
+                        command = 'mkdir ' + pwd;
+                    } else {
+                        command = 'mkdir -p ' + pwd;
+                    }
+                    // コマンド実行
                     this.exe(command, HOMEDIR);
                 }
             },
@@ -727,23 +743,14 @@
         mounted() {
             this.user = firebase.auth().currentUser;
 
-            console.log(process.platform);
-
-            if(process.platform==='win32'){
+            // 作業ディレクトリの定義
+            if(is_windows){
                 this.pwd = this.pwd + "\\chathub\\repository\\";
-                if(! fs.existsSync(this.pwd)){
-                    const command = 'mkdir ' + this.pwd;
-                    this.exe(command, HOMEDIR);
-                }
             }else{
                 this.pwd = this.pwd + "/chathub/repository/";
-                if(! fs.existsSync(this.pwd)){
-                    const command = 'mkdir -p ' + this.pwd;
-                    this.exe(command, HOMEDIR);
-                }
             }
-
-            console.log(this.pwd);
+            // 作業ディレクトリが存在しない場合作成
+            this.makeDirectory(this.pwd);
 
             firebase
                 .database()
