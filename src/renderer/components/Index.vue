@@ -37,7 +37,7 @@
                     class="navigation_content"
                     v-for="channel in channels"
                     :key="channel.id"
-            ># {{ channel.channel_name }}</div>
+            >{{ channel.channel_name }}</div>
             <div class="section_title">
                 <h2>メンバー</h2>
             </div>
@@ -124,8 +124,10 @@
                             >
                                 <Avator :user="userObj[message.user].email" />
                                 <div>
-                                    <div class="message_user">{{ userObj[message.user].name }}</div>
+                                    <div class="message_user">{{ userObj[message.user].name }} <span>{{ convertTime(message.createdAt) }}</span></div>
                                     <div class="message_content">{{ message.content }}</div>
+                                    <div v-if="message.category === 'message'" class="message_category message">#message</div>
+                                    <div v-if="message.category === 'upload'" class="message_category upload">#upload</div>
                                     <div v-if="message.url">
                                         <img src="https://image.flaticon.com/icons/png/512/129/129492.png" width="64px" height="64px"/>
                                     </div>
@@ -138,8 +140,10 @@
                                 :placeholder="placeholder"
                                 v-model="message"
                         ></textarea>
-                        <button @click="sendMessage">送信</button>
-                        <button v-if="directoryExistence" @click="gitPush">アップロード</button>
+                        <div id="button_area">
+                            <button @click="sendMessage" style="background: #1665d5">送信</button
+                            ><button v-if="directoryExistence" @click="gitPush" style="background: #ff4f4c">アップロード</button>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -162,7 +166,7 @@
         min-width: 240px;
         height: 100vh;
         padding-left: 15px;
-        background: linear-gradient(-45deg, #00d9b4, #6ee887);
+        background: #1665d5;
         vertical-align: top;
         color: #FFFFFF;
         #logo_area{
@@ -197,10 +201,10 @@
                 vertical-align: middle;
                 height: 50px;
                 p{
-                    display: inline-block;
+                    display: block;
                     line-height: 25px;
                     height: 25px;
-                    padding-left: 5px;
+                    padding-left: 10px;
                 }
                 button{
                     margin: 4px 0 0 10px;
@@ -210,7 +214,8 @@
                     height: 20px;
                     line-height: 20px;
                     font-size: 0.7em;
-                    color: #00d9b4;
+                    color: #1665d5;
+                    font-weight: bold;
                     &:hover{
                         opacity: .8;
                     }
@@ -247,7 +252,7 @@
                     margin-top: 20px;
                 }
                 input[type='text']{
-                    margin: 20px 0 0;
+                    margin: 40px 0 0;
                     width: 96%;
                     padding: 2%;
                     height: 40px;
@@ -258,15 +263,15 @@
                 }
                 button{
                     display: inline-block;
-                    width: 60px;
+                    width: 100px;
                     padding: 0 10px;
-                    background: #00ea8b;
+                    background: #1665d5;
                     border-radius: 5px;
-                    height: 5vh;
+                    height: 40px;
                     color: #FFFFFF;
                     font-weight: bold;
-                    font-size: .8em;
-                    margin: 20px 0 0 155px;
+                    font-size: 1em;
+                    margin: 40px 0 0 140px;
                     &:hover{
                         opacity: .7;
                     }
@@ -340,7 +345,7 @@
                 display: inline-block;
                 width: auto;
                 padding: 0 1vw;
-                background: #00ea8b;
+                background: #1665d5;
                 border-radius: 5px;
                 height: 5vh;
                 color: #FFFFFF;
@@ -356,41 +361,73 @@
     main{
         height: 90vh;
         overflow: hidden;
+        width: 100%;
         #message_bottom{
-            height: 65vh;
+            height: 70vh;
             width: 100%;
             overflow-y: scroll;
+            font-size: 1em;
             .message_user{
                 font-weight: bold;
                 margin-left: 10px;
+                span{
+                    font-weight: normal;
+                    font-size: .8em;
+                }
             }
             .message_content{
                 user-select: auto;
             }
+            .message_category{
+                margin: 0 0 0 10px;
+                display: inline-block;
+                background: #1665d5;
+                height: 15px;
+                border-radius: 15px;
+                padding: 3px 15px;
+                line-height: 15px;
+                font-size: .8em;
+                color: #FFFFFF;
+                width: auto;
+            }
+            .message{
+                background: #1665d5;
+            }
+            .upload{
+                background: #ff4f4c;
+            }
         }
         #send_message{
-            height: 16vh;
-            width: 93%;
-            border: solid 2px #000000;
-            border-radius: 3px;
-            margin: 1vh 2% 0;
-            padding: 1%;
+            flex-direction: column;
+            height: 20vh;
+            width: 100%;
+            border-top: solid 2px #000000;
+            margin: 0;
+            padding-top: 1%;
             textarea{
                 border: none;
-                width: 100%;
-                height: 10vh;
+                width: 96%;
+                margin-left: 2%;
+                height: 11vh;
                 resize: none;
                 background: none;
                 &:focus{
                     outline: none;
                 }
             }
-            button{
-                background: #ff4f4c;
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-weight: bold;
-                color: #FFFFFF;
+            #button_area{
+                width: 100%;
+                height: auto;
+                padding: 1vh;
+                button{
+                    margin: 0 0.5vh;
+                    background: #f1a90c;
+                    padding: 0 10px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    color: #ffffff;
+                    height: 4vh;
+                }
             }
         }
         .message_content{
@@ -608,6 +645,10 @@
                     email : user.email
                 };
             },
+            convertTime(unixTime){
+                const date = new Date(unixTime);
+                return date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP');
+            },
             directMessage(user) {
                 this.messages = [];
                 this.user.uid > user.user_id
@@ -643,10 +684,10 @@
             },
             channelMessage(channel) {   // チャンネルごとのメッセージ
                 this.messages = [];
-                this.channel_name = "#" + channel.channel_name;
+                this.channel_name = channel.channel_name;
                 this.channel_id = channel.id;
                 this.channel_description = channel.description;
-                this.placeholder = "#" + channel.channel_name + "へのメッセージ";
+                this.placeholder = channel.channel_name + "へのメッセージ";
                 this.localRipository.older = false;
 
                 this.userObj = new Object();
@@ -707,11 +748,14 @@
 
                 // directory名の抽出
                 const directory = this.channel.match(/.*\/(.+?)\./);
+                const user =
+                    this.channel.replace(/git@github.com:*(.*?).git*/g,"$1")
+                        .replace(new RegExp( '/' + directory,"g" ), '');
 
                 // チャンネル名として定義
                 newChannel
                     .set({
-                        channel_name: directory[1],
+                        channel_name: user,
                         id: key_id,
                         repository: this.channel,
                         description: ""
