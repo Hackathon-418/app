@@ -55,7 +55,7 @@
                     <p v-if="targetRepository">{{ channel_description }}</p>
                 </div>
                 <div id="channel_button" v-if="targetRepository">
-                    <button v-if="directoryExistence" @click="gitFetch">アップデート</button>
+                    <button v-if="directoryExistence" @click="gitPull">アップデート</button>
                     <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
                     <button v-else @click="gitClone">ダウンロード</button>
                 </div>
@@ -497,10 +497,10 @@
             gitClone() {    // リモートリポジトリのクローン
                 const command = 'git clone ' + this.targetRepository;
                 this.exe(command, this.pwd);
-                this.directoryCheck();
+                this.directoryExistence = fs.existsSync(this.targetRepository);
             },
-            gitFetch(){    // フェッチ
-                const command = 'git fetch';
+            gitPull(){    // フェッチ
+                const command = 'git pull';
                 this.exe(command, this.pwd);
             },
             gitAddRemote(){ // リモートリポジトリの追加
@@ -514,31 +514,6 @@
                 {
                     const command = 'explorer.exe ' + this.pwd + directory[1];
                     this.exe(command);
-                }
-            },
-            directoryCheck(){   // ディレクトリの存在確認
-                // ディレクトリ名を取得
-                if(this.targetRepository){
-                    let directory = this.targetRepository.match(/.*\/(.+?)\./);
-                    if (directory && directory.length > 1)
-                    {
-                        if(process.platform === 'win32'){   // Windows
-                            const child = child_process.exec("dir /B " + this.pwd + directory[1], {
-                                cwd: this.pwd,  // 子プロセスの現在の作業ディレクトリ（デフォルト：null）
-                                shell: true     // コマンドを実行するシェル（デフォルト： [Unix]/bin/sh [Windows]process.env.ComSpec）
-                            });
-
-                            // 標準出力表示処理
-                            child.stdout.on("data", data => {
-                                this.directoryExistence = true;
-                            });
-
-                            // 標準エラー受け取り時の処理
-                            child.stderr.on("data", data => {
-                                this.directoryExistence = false;
-                            });
-                        }
-                    }
                 }
             },
             signOut() {
@@ -621,7 +596,7 @@
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
 
                 this.targetRepository = channel.repository;
-                this.directoryCheck();
+                this.directoryExistence = fs.existsSync(this.targetRepository);
 
                 if (this.channel_id != "") {
                     firebase
@@ -732,13 +707,13 @@
                 this.pwd = this.pwd + "\\chathub\\repository\\";
                 if(! fs.existsSync(this.pwd)){
                     const command = 'mkdir ' + this.pwd;
-                    this.exe(command, this.pwd);
+                    this.exe(command, HOMEDIR);
                 }
             }else{
                 this.pwd = this.pwd + "/chathub/repository/";
                 if(! fs.existsSync(this.pwd)){
                     const command = 'mkdir -p ' + this.pwd;
-                    this.exe(command, this.pwd);
+                    this.exe(command, HOMEDIR);
                 }
             }
 
