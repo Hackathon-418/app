@@ -96,8 +96,13 @@
 </script>
 
 <style>
+    @font-face {
+        font-family: 'JapaneseFont';
+        src: url('~@/assets/font/KosugiMaru-Regular.ttf') format('truetype');
+    }
     /*2行目 */
     .frame{
+        font-family: 'JapaneseFont';
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -105,6 +110,7 @@
 
     /*3行目 */
     .header{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: space-between;
         padding: 1rem;
@@ -115,11 +121,13 @@
 
     /*ヘッダー内div 4行目 */
     .header-frame{
+        font-family: 'JapaneseFont';
         display: flex;
     }
 
     /*ロゴイメージ ５行目*/
     .logo{
+        font-family: 'JapaneseFont';
         height: 4rem;
         padding-left: 2.5rem;
         filter : drop-shadow(1px 2px 0px #888);
@@ -127,6 +135,7 @@
 
     /*ヘッダー内 文字6行目*/
     .app-name{
+        font-family: 'JapaneseFont';
         font-weight: 600;
         --text-opacity: 1;
         color: #fff;
@@ -140,6 +149,7 @@
 
     /*9行目 */
     .main-frame{
+        font-family: 'JapaneseFont';
         --bg-opacity: 1;
         background-color: #fff;
         background-color: rgba(255, 255, 255, var(--bg-opacity));
@@ -148,6 +158,7 @@
 
     /*ボックス 10行目*/
     .element-frame{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: center;
         margin-top: 4rem;
@@ -155,10 +166,12 @@
 
     /*フォームフレーム 11行目*/
     .form-frame{
+        font-family: 'JapaneseFont';
         width: 80%;
     }
     /*フォームのメインフレーム 12行目 */
     .form-main-frame{
+        font-family: 'JapaneseFont';
         margin-top: 3rem;
         margin-bottom: 3rem;
     }
@@ -173,18 +186,21 @@
 
     /*14行目 */
     .form-element-frame{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: center;
     }
 
     /*15行目 25行目 */
     .col-element{
+        font-family: 'JapaneseFont';
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
 
     /*16行目  */
     .element-titel-enroll{
+        font-family: 'JapaneseFont';
         border-left: solid 7px #FFB800;
         margin-top: 1rem;
         margin-bottom: 1rem;
@@ -193,18 +209,21 @@
     /*17行目  28行目*/
 
     .discription{
+        font-family: 'JapaneseFont';
         margin-left: 0.75rem;
         font-weight: 600;
     }
 
     /*19行目 */
     .enroll-element{
+        font-family: 'JapaneseFont';
         height: 100%;
         padding-top: 1rem;
     }
 
     /*21行目 */
     .enroll-btn{
+        font-family: 'JapaneseFont';
         width:100%;
         font-size: 1.25rem;
         --bg-opacity: 1;
@@ -220,12 +239,14 @@
 
     /*26行目 */
     .login-frame{
+        font-family: 'JapaneseFont';
         margin-top: 1rem;
         margin-bottom: 1rem;
     }
 
     /*27行目 */
     .element-titel-login{
+        font-family: 'JapaneseFont';
         border-left: solid 7px #B9E45E;
         margin-top: 1rem;
         margin-bottom: 1rem;
@@ -233,6 +254,7 @@
 
     /*31行目 35行目 */
     .col-element-frame{
+        font-family: 'JapaneseFont';
         margin-bottom: 0.5rem;
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
@@ -240,6 +262,7 @@
 
     /*32行目 36行目 */
     .form-text-setting{
+        font-family: 'JapaneseFont';
         float: left;
         --text-opacity: 1;
         color: #718096;
@@ -249,6 +272,7 @@
     }
     /*33行目 37行目 */
     .input-box{
+        font-family: 'JapaneseFont';
         font-size: 1.125rem;
         padding: 0.5rem;
         --bg-opacity: 1;
@@ -260,6 +284,7 @@
 
     /*42行目 */
     .error-text{
+        font-family: 'JapaneseFont';
         font-weight: 600;
         --text-opacity: 1;
         color: #c53030;
@@ -268,11 +293,13 @@
 
     /*45行目 */
     .btn-frame{
+        font-family: 'JapaneseFont';
         height: 100%;
     }
 
     /*46行目 */
     .submit-btn{
+        font-family: 'JapaneseFont';
         width:100%;
         font-size: 1.25rem;
         --bg-opacity: 1;
@@ -288,6 +315,7 @@
 
     /*56行目 */
     .footer{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: space-between;
         padding: 1.5rem;
