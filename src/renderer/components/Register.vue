@@ -11,9 +11,9 @@
                 <div class="form-frame">
                     <div class="form-main-frame">
                         <h2 class="enroll">新規会員登録</h2>
+                        <span class="from-discription">メールアドレス</span>と
+                        <span class="from-discription">パスワード</span>を入力してください。
                         <div class="form-element-frame">
-                            <span class="from-discription">メールアドレス</span>と
-                            <span class="from-discription">パスワード</span>を入力してください。
                             <form @submit.prevent="registerUser">
                                 <div class="form-element-padding">
                                     <div class="form-element">

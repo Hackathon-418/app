@@ -55,6 +55,7 @@
                     <p v-if="targetRepository">{{ channel_description }}</p>
                 </div>
                 <div id="channel_button" v-if="targetRepository">
+                    <button v-if="directoryExistence" @click="gitFetch">アップデート</button>
                     <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
                     <button v-else @click="gitClone">ダウンロード</button>
                 </div>
@@ -135,7 +136,7 @@
                                 v-model="message"
                         ></textarea>
                         <button @click="sendMessage">送信</button>
-                        <button v-if="directoryExistence" @click="gitPush">アップデート</button>
+                        <button v-if="directoryExistence" @click="gitPush">アップロード</button>
                     </div>
                 </div>
             </main>
@@ -320,7 +321,7 @@
         border-bottom: solid 1px #c0c0c0;
         display: flex;
         #channel_description{
-            width: 80%;
+            width: 60%;
             h2{
                 padding-left: 20px;
                 font-weight: bold;
@@ -330,7 +331,10 @@
             }
         }
         #channel_button{
+            width: 37%;
+            text-align: right;
             button{
+                display: inline-block;
                 width: auto;
                 padding: 0 1vw;
                 background: #00ea8b;
@@ -358,6 +362,7 @@
                 margin-left: 10px;
             }
             .message_content{
+                user-select: auto;
             }
         }
         #send_message{
@@ -480,7 +485,7 @@
                 for(const command of commands){
                     this.exe(command, this.pwd + directory[1]);
                 }
-                this.messageCategory = 'update';
+                this.messageCategory = 'upload';
                 this.sendMessage();
             },
             gitClone() {    // リモートリポジトリのクローン
@@ -488,11 +493,15 @@
                 this.exe(command, this.pwd);
                 this.directoryCheck();
             },
-            addRemote(){    // リモートリポジトリの追加
+            gitFetch(){    // フェッチ
+                const command = 'git fetch';
+                this.exe(command, this.pwd);
+            },
+            gitAddRemote(){ // リモートリポジトリの追加
                 const command = 'git remote add origin ' + this.targetRepository;
                 this.exe(command, this.pwd);
             },
-            openExplorer(){
+            openExplorer(){ // エクスプローラでの表示
                 // ディレクトリ名を取得
                 let directory = this.targetRepository.match(/.*\/(.+?)\./);
                 if (directory && directory.length > 1)
@@ -501,7 +510,7 @@
                     this.exe(command);
                 }
             },
-            directoryCheck(){
+            directoryCheck(){   // ディレクトリの存在確認
                 // ディレクトリ名を取得
                 if(this.targetRepository){
                     let directory = this.targetRepository.match(/.*\/(.+?)\./);
@@ -523,9 +532,6 @@
                         });
                     }
                 }
-            },
-            moveLink(url){
-                window.open(url,'_blank');
             },
             signOut() {
                 this.connectionRef.child(this.connection_key).remove();
@@ -578,6 +584,8 @@
                         .off();
                 }
 
+
+                this.directoryExistence = false;
                 this.channel_name = user.name;
                 this.placeholder = user.email + "へのメッセージ";
                 this.targetRepository = null;
@@ -597,7 +605,7 @@
                 // 最下部までスクロール
                 this.scrollBottom();
             },
-            channelMessage(channel) {
+            channelMessage(channel) {   // チャンネルごとのメッセージ
                 this.messages = [];
                 this.channel_name = "# " + channel.channel_name;
                 this.channel_id = channel.id;
