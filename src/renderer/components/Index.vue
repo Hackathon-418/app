@@ -55,7 +55,8 @@
                     <p v-if="targetRepository">{{ channel_description }}</p>
                 </div>
                 <div id="channel_button" v-if="targetRepository">
-                    <button v-if="directoryExistence" @click="gitPull">アップデート</button>
+                    <button v-if="localRipository.older" @click="gitPull" style="background: #ff4f4c">アップデート</button>
+                    <button v-else style="background: #919191;cursor: default;">アップデート</button>
                     <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
                     <button v-else @click="gitClone">ダウンロード</button>
                 </div>
@@ -459,6 +460,7 @@
                     parentDir: '',
                     ripositoryDir: '',
                     workDir: '',
+                    older: false,
                 },
                 commandProgress: 0,
             };
@@ -498,9 +500,9 @@
                 ];
 
                 // コマンド実行
-                this.exe(commands[0], this.workDir).on("close",(code) => {
-                    this.exe(commands[1], this.workDir).on("close",(code) => {
-                        this.exe(commands[2], this.workDir).on("close",(code) => {
+                this.exe(commands[0], this.localRipository.workDir).on("close",(code) => {
+                    this.exe(commands[1], this.localRipository.workDir).on("close",(code) => {
+                        this.exe(commands[2], this.localRipository.workDir).on("close",(code) => {
                             console.log('push complete');
                             this.messageCategory = 'upload';
                             this.sendMessage();
@@ -518,12 +520,17 @@
                     command,
                     this.pwd + this.localRipository.parentDir,
                 ).on("close",(code) => {    // コマンド終了後処理
-                    this.directoryExistence = fs.existsSync(this.workDir);
+                    this.directoryExistence = fs.existsSync(this.localRipository.workDir);
                 });
             },
             gitPull(){    // プル
                 const command = 'git pull';
-                this.exe(command, this.workDir);
+                this.exe(
+                    command,
+                    this.localRipository.workDir
+                ).on("close",(code) => {    // コマンド終了後処理
+                    this.localRipository.older = false;
+                });
             },
             gitAddRemote(){ // リモートリポジトリの追加
                 const command = 'git remote add origin ' + this.targetRepository;
@@ -531,16 +538,15 @@
             },
             openExplorer(){ // エクスプローラでの表示
                 if(is_windows){ // Windows (Explorer)
-                    const command = 'explorer.exe ' + this.workDir;
+                    const command = 'explorer.exe ' + this.localRipository.workDir;
                     this.exe(command, HOMEDIR);
                 }else{          // Mac(FInder)
-                    const command = 'open ' + this.workDir;
+                    const command = 'open ' + this.localRipository.workDir;
                     this.exe(command, HOMEDIR);
                 }
             },
             directoryCheck(){
-                console.log(this.workDir);
-                return fs.existsSync(this.workDir);
+                return fs.existsSync(this.localRipository.workDir);
             },
             makeDirectory(pwd) {
                 // ディレクトリ存在確認
@@ -630,10 +636,11 @@
             },
             channelMessage(channel) {   // チャンネルごとのメッセージ
                 this.messages = [];
-                this.channel_name = "# " + channel.channel_name;
+                this.channel_name = "#" + channel.channel_name;
                 this.channel_id = channel.id;
                 this.channel_description = channel.description;
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
+                this.localRipository.older = false;
 
                 // リポジトリ情報の変更
                 this.targetRepository = channel.repository;
@@ -641,13 +648,25 @@
                 this.localRipository.parentDir =
                     this.targetRepository.replace(/git@github.com:*(.*?).git*/g,"$1")
                     .replace(new RegExp( '/' + this.localRipository.ripositoryDir,"g" ), '');
+                // 作業ディレクトリ名を定義
                 if(is_windows){
-                    this.workDir = this.pwd + this.localRipository.parentDir + '\\' + this.localRipository.ripositoryDir;
+                    this.localRipository.workDir = this.pwd + this.localRipository.parentDir + '\\' + this.localRipository.ripositoryDir;
                 }else{
-                    this.workDir = this.pwd + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir;
+                    this.localRipository.workDir = this.pwd + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir;
                 }
 
+                // ローカルリポジトリの存在確認
                 this.directoryExistence = this.directoryCheck();
+
+                // リモートリポジトリのバージョン確認
+                if(this.directoryExistence){
+                    this.exe(
+                        'git fetch --dry-run',
+                        this.localRipository.workDir,
+                    ).stderr.on("data", data => {
+                        this.localRipository.older = true;
+                    });
+                }
 
                 if (this.channel_id !== "") {
                     firebase
