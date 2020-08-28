@@ -1,4 +1,4 @@
-# eterm
+# ChatHub
 
 > An electron-vue project
 
