@@ -21,102 +21,30 @@ function createWindow() {
      * Initial window options
      */
     mainWindow = new BrowserWindow({
-        width: 720,
-        height: 484,
+        width: 1000,
+        height: 700,
         useContentSize: true,
-        titleBarStyle: "hiddenInset",
-        frame: false,
+        titleBarStyle: "hidden",
+        frame: true,
         transparent: true,
         vibrancy: "dark",
-        show: false
+        show: false,
     });
     mainWindow.once("ready-to-show", () => {
         mainWindow.show();
     });
 
+    // メニューバーを非表示に
+    mainWindow.setMenuBarVisibility(false);
+
     mainWindow.loadURL(winURL);
+
+    // タイトル設定
+    mainWindow.setTitle('ChatHub');
 
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
-
-    // Create the Application's main menu
-    var template = [
-        {
-            label: "Eterm",
-            submenu: [
-                {
-                    label: "About Eterm",
-                    selector: "orderFrontStandardAboutPanel:"
-                },
-                { type: "separator" },
-                {
-                    label: "Quit",
-                    accelerator: "Command+Q",
-                    click: function() {
-                        app.quit()
-                    }
-                }
-            ]
-        },
-        {
-            label: "シェル",
-            submenu: []
-        },
-        {
-            label: "編集",
-            submenu: [
-                {
-                    label: "Reload",
-                    accelerator: "Command+R",
-                    click: function() {
-                        mainWindow.reload();
-                    }
-                },
-                {
-                    label: "Undo",
-                    accelerator: "CmdOrCtrl+Z",
-                    selector: "undo:"
-                },
-                {
-                    label: "Redo",
-                    accelerator: "Shift+CmdOrCtrl+Z",
-                    selector: "redo:"
-                },
-                { type: "separator" },
-                { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-                {
-                    label: "Copy",
-                    accelerator: "CmdOrCtrl+C",
-                    selector: "copy:"
-                },
-                {
-                    label: "Paste",
-                    accelerator: "CmdOrCtrl+V",
-                    selector: "paste:"
-                },
-                {
-                    label: "Select All",
-                    accelerator: "CmdOrCtrl+A",
-                    selector: "selectAll:"
-                }
-            ]
-        },
-        {
-            label: "表示",
-            submenu: []
-        },
-        {
-            label: "ウィンドウ",
-            submenu: []
-        },
-        {
-            label: "ヘルプ",
-            submenu: []
-        },
-    ];
-
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 let subWindow;

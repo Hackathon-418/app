@@ -18,33 +18,17 @@
                 <h2>プロジェクト</h2>
                 <PlusCircle @click.native="showChannelModal" />
                 <div
-                        class="z-10 fixed top-0 left-0 h-full w-full flex items-center justify-center"
+                        id="addproject_window"
                         style="background-color:rgba(0,0,0,0.5)"
                         v-show="channelModal"
                         @click="closeChannelModal"
                 >
-                    <div class="z-20 bg-white text-gray-900 w-1/3 rounded-md" v-on:click.stop>
-                        <div class="flex flex-col p-6">
-                            <div>
-                                <h2 class="text-3xl font-black leading-loose">プロジェクトを追加する</h2>
-                                <span @click="closeChannelModal">×</span>
-                            </div>
-                            <p>プロジェクトを追加して新しい開発を進めましょう！</p>
-                            <div class="mt-8 font-semibold">プロジェクト名</div>
-                            <div class="my-3">
-                                <input
-                                        type="text"
-                                        class="w-full rounded border-gray-900 border-solid border p-3"
-                                        v-model="channel"
-                                />
-                            </div>
-                            <div class="flex justify-end">
-                                <button
-                                        class="px-8 py-2 rounded bg-green-900 font-bold text-white"
-                                        @click="addChannel"
-                                >作成</button>
-                            </div>
-                        </div>
+                    <div id="addproject_area" v-on:click.stop>
+                        <h2>プロジェクトを追加する</h2>
+                        <span class="x_button" @click="closeChannelModal">×</span>
+                        <p>プロジェクトを追加して新しい開発を進めましょう！</p>
+                        <input type="text" v-model="channel" placeholder="リモートリポジトリURL">
+                        <button @click="addChannel">作成</button>
                     </div>
                 </div>
             </div>
@@ -68,6 +52,7 @@
             <header>
                 <div id="channel_description">
                     <h2>{{ channel_name }}</h2>
+                    <p v-if="targetRepository">{{ channel_description }}</p>
                 </div>
                 <div id="channel_button" v-if="targetRepository">
                     <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
@@ -144,7 +129,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="send_menu">
+                    <div id="send_message">
                         <textarea
                                 :placeholder="placeholder"
                                 v-model="message"
@@ -224,6 +209,62 @@
                     color: #00d9b4;
                     &:hover{
                         opacity: .8;
+                    }
+                }
+            }
+        }
+        #addproject_window{
+            position: fixed;
+            z-index: 100;
+            background: rgba(0,0,0,.4);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            #addproject_area{
+                color: #000000;
+                background: #FFFFFF;
+                border-radius: 10px;
+                width: 390px;
+                height: 60vh;
+                padding: 5vh 10px;
+                margin: 15vh auto 0;
+                h2{
+                    display: inline-block;
+                    font-weight: bold;
+                    font-size: 1.6em;
+                    width: 90%;
+                }
+                .x_button{
+                    display: inline-block;
+                    cursor: pointer;
+                }
+                p{
+                    margin-top: 20px;
+                }
+                input[type='text']{
+                    margin: 20px 0 0;
+                    width: 96%;
+                    padding: 2%;
+                    height: 40px;
+                    border-radius: 4px;
+                    outline: none;
+                    border: solid 1px #000000;
+                    font-size: 1.4em;
+                }
+                button{
+                    display: inline-block;
+                    width: 60px;
+                    padding: 0 10px;
+                    background: #00ea8b;
+                    border-radius: 5px;
+                    height: 5vh;
+                    color: #FFFFFF;
+                    font-weight: bold;
+                    font-size: .8em;
+                    margin: 20px 0 0 155px;
+                    &:hover{
+                        opacity: .7;
                     }
                 }
             }
@@ -319,12 +360,12 @@
             .message_content{
             }
         }
-        #send_menu{
+        #send_message{
             height: 16vh;
             width: 93%;
             border: solid 2px #000000;
             border-radius: 3px;
-            margin: 1vh 2%;
+            margin: 1vh 2% 0;
             padding: 1%;
             textarea{
                 border: none;
@@ -384,6 +425,7 @@
                 channel: "",
                 users: [],
                 channel_name: "",
+                channel_description: null,
                 message: "",
                 messages: [],
                 placeholder: "",
@@ -401,6 +443,7 @@
                 log: null,          // 標準出力格納用
                 targetRepository: null,
                 directoryExistence: false,
+                messageCategory: 'message',
             };
         },
         methods: {
@@ -429,7 +472,7 @@
             gitPush() {     // git add / commit / push
                 const commands = [
                     'git add .',
-                    'git commit -m \"' + this.message + '\"',
+                    'git commit -a -m \"' + this.message + '\"',
                     'git push origin master'
                 ];
                 const directory = this.targetRepository.match(/.*\/(.+?)\./);
@@ -437,9 +480,8 @@
                 for(const command of commands){
                     this.exe(command, this.pwd + directory[1]);
                 }
-
+                this.messageCategory = 'update';
                 this.sendMessage();
-
             },
             gitClone() {    // リモートリポジトリのクローン
                 const command = 'git clone ' + this.targetRepository;
@@ -513,8 +555,11 @@
                         content: content,
                         user: this.user.email,
                         url: this.url,
+                        category: this.messageCategory,
                         createdAt: firebase.database.ServerValue.TIMESTAMP
                     });
+
+                this.messageCategory = 'message';
 
                 this.url == "" ? this.message = "" : this.file_message = "";
                 this.url = "";
@@ -556,6 +601,7 @@
                 this.messages = [];
                 this.channel_name = "# " + channel.channel_name;
                 this.channel_id = channel.id;
+                this.channel_description = channel.description;
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
 
                 this.targetRepository = channel.repository;
@@ -593,10 +639,14 @@
 
                 const key_id = newChannel.key;
 
+                const directory = this.channel.match(/.*\/(.+?)\./);
+
                 newChannel
                     .set({
-                        channel_name: this.channel,
-                        id: key_id
+                        channel_name: directory[1],
+                        id: key_id,
+                        repository: this.channel,
+                        description: ""
                     })
                     .then(() => {
                         this.channelModal = false;

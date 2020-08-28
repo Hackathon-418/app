@@ -1,5 +1,5 @@
 {
-  "name": "eterm",
+  "name": "ChatHub",
   "version": "0.0.2",
   "author": "The Surface",
   "description": "An electron-vue project",
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "Eterm",
-    "appId": "com.jphacks.2018.ng-1811",
+    "productName": "ChatHub",
+    "appId": "com.418.chathub",
     "directories": {
       "output": "build"
     },

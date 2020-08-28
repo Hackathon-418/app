@@ -1,49 +1,49 @@
 <template>
-    <div class="flex flex-col h-screen">
-        <header class="flex justify-between p-4 border-b items-center" style="background: linear-gradient(90deg, #00d9b4, #6ee887)">
-            <div class="flex">
-                <img src="../assets/logogo.png" class="h-16 pl-10 " style="filter : drop-shadow(1px 2px 0px #888)">
-                <h1 class="font-semibold text-white leading-tight mt-2 pl-4 text-3xl" style="text-shadow:1px 2px 0 #888">Chat Hub</h1>
+    <div class="frame">
+        <header class="header">
+            <div class="header-frame">
+                <img class="logo" src="../assets/logogo.png">
+                <h1 class="app-name">Chat Hub</h1>
             </div>
         </header>
-        <div class="bg-white flex-auto">
-            <div class="flex justify-center mt-16">
-                <div class="w-4/5">
-                    <div class="my-12">
-                        <h2 class="text-2xl text-center font-bold pb-6">ログイン</h2>
-                        <div class="flex justify-center">
-                            <div class="pr-6">
-                                <div style="border-left: solid 7px #FFB800" class="my-4">
-                                    <span class="ml-3 font-semibold">ユーザー登録がお済みで無い方</span>
+        <div class="main-frame">
+            <div class="element-frame">
+                <div class="form-frame">
+                    <div class="form-main-frame">
+                        <h2 class="login">ログイン</h2>
+                        <div class="form-element-frame">
+                            <div class="col-element">
+                                <div class="element-titel-enroll">
+                                    <span class="discription">ユーザー登録がお済みで無い方</span>
                                 </div>
-                                <div class="h-full pt-4">
-                                    <button type="submit" style="width:100%" class="text-xl bg-orange-400 text-white py-2 rounded">
-                                        <router-link to="/register">新規登録へ進む</router-link>
-                                    </button>
+                                <div class="enroll-element">
+                                    <router-link to="/register">
+                                        <button type="submit" class="enroll-btn">新規登録へ進む</button>
+                                    </router-link>
                                 </div>
                             </div>
-                            <div class="pl-6">
-                                <div class="my-4">
-                                    <div style="border-left: solid 7px #B9E45E" class="my-4">
-                                        <span class="font-semibold ml-3">ユーザー登録がお済みの方</span>
+                            <div class="col-element">
+                                <div class="login-frame">
+                                    <div class="element-titel-login">
+                                        <span class="discription">ユーザー登録がお済みの方</span>
                                     </div>
                                     <form @submit.prevent="signIn">
-                                        <div class="mb-2 py-1">
-                                            <span class="float-left text-gray-600 py-1">メールアドレス</span>
-                                            <input type="email" v-model="email" placeholder="chathub@example.com" class="text-lg h-full p-2 bg-gray-100 rounded" style="width:100%"/>
+                                        <div class="col-element-frame">
+                                            <span class="form-text-setting">メールアドレス</span>
+                                            <input type="email" v-model="email" placeholder="chathub@example.com" class="input-box"/>
                                         </div>
-                                        <div class="mb-2  py-1">
-                                            <label class="float-left text-gray-600 py-1">パスワード</label>
-                                            <input type="password" v-model="password" class="text-xl p-2 bg-gray-100 rounded" placeholder="password" style="width:100%"/>
+                                        <div class="col-element-frame">
+                                            <span class="form-text-setting">パスワード</span>
+                                            <input type="password" v-model="password" placeholder="password" class="input-box"/>
                                         </div>
                                         <div v-if="errors.length">
-                                            <ul class="my-4">
+                                            <ul class="login-frame">
                                                 <!--<li v-for="(error, index) in errors" :key="index" class="font-semibold text-red-700">{{ error }}</li>-->
-                                                <li class="font-semibold text-red-700">{{ errors }}</li>
+                                                <li class="error-text">{{ errors }}</li>
                                             </ul>
                                         </div>
-                                        <div class="h-full">
-                                            <button type="submit" style="width:100%" class="text-xl bg-orange-400 text-white py-2 rounded">サインイン</button>
+                                        <div class="btn-frame">
+                                            <button type="submit" class="submit-btn">サインイン</button>
                                         </div>
                                     </form>
                                 </div>
@@ -53,23 +53,16 @@
                 </div>
             </div>
         </div>
-        <footer></footer>
+        <footer class="footer">
+        </footer>
     </div>
 </template>
-
-<style lang="scss">
-
-    footer{
-        display: block;
-        width: 100%;
-        height: 10px;
-        background: linear-gradient(90deg, #6ee887 ,#00d9b4);
-    }
-</style>
 
 <script>
     import firebase from "firebase/app";
     import "firebase/auth";
+    import "firebase/storage";
+    import "firebase/database";
 
     export default {
         data() {
@@ -98,3 +91,205 @@
         }
     }
 </script>
+
+<style>
+    /*2行目 */
+    .frame{
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    /*3行目 */
+    .header{
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom-width: 1px;
+        align-items: center;
+        background: linear-gradient(90deg, #00d9b4, #6ee887)
+    }
+
+    /*ヘッダー内div 4行目 */
+    .header-frame{
+        display: flex;
+    }
+
+    /*ロゴイメージ ５行目*/
+    .logo{
+        height: 4rem;
+        padding-left: 2.5rem;
+        filter : drop-shadow(1px 2px 0px #888);
+    }
+
+    /*ヘッダー内 文字6行目*/
+    .app-name{
+        font-weight: 600;
+        --text-opacity: 1;
+        color: #fff;
+        color: rgba(255, 255, 255, var(--text-opacity));
+        line-height: 1.25;
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+        font-size: 1.875rem;
+        text-shadow:1px 2px 0 #888;
+    }
+
+    /*9行目 */
+    .main-frame{
+        --bg-opacity: 1;
+        background-color: #fff;
+        background-color: rgba(255, 255, 255, var(--bg-opacity));
+        flex: 1 1 auto;
+    }
+
+    /*ボックス 10行目*/
+    .element-frame{
+        display: flex;
+        justify-content: center;
+        margin-top: 4rem;
+    }
+
+    /*フォームフレーム 11行目*/
+    .form-frame{
+        width: 80%;
+    }
+    /*フォームのメインフレーム 12行目 */
+    .form-main-frame{
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    /*ログイン文字 13行目*/
+    .login{
+        font-size: 1.5rem;
+        text-align: center;
+        font-weight: 700;
+        padding-bottom: 1.5rem;
+    }
+
+    /*14行目 */
+    .form-element-frame{
+        display: flex;
+        justify-content: center;
+    }
+
+    /*15行目 25行目 */
+    .col-element{
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    /*16行目  */
+    .element-titel-enroll{
+        border-left: solid 7px #FFB800;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /*17行目  28行目*/
+
+    .discription{
+        margin-left: 0.75rem;
+        font-weight: 600;
+    }
+
+    /*19行目 */
+    .enroll-element{
+        height: 100%;
+        padding-top: 1rem;
+    }
+
+    /*21行目 */
+    .enroll-btn{
+        width:100%;
+        font-size: 1.25rem;
+        --bg-opacity: 1;
+        background-color: #f6ad55;
+        background-color: rgba(246, 173, 85, var(--bg-opacity));
+        --text-opacity: 1;
+        color: #fff;
+        color: rgba(255, 255, 255, var(--text-opacity));
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    /*26行目 */
+    .login-frame{
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /*27行目 */
+    .element-titel-login{
+        border-left: solid 7px #B9E45E;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /*31行目 35行目 */
+    .col-element-frame{
+        margin-bottom: 0.5rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    /*32行目 36行目 */
+    .form-text-setting{
+        float: left;
+        --text-opacity: 1;
+        color: #718096;
+        color: rgba(113, 128, 150, var(--text-opacity));
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    /*33行目 37行目 */
+    .input-box{
+        font-size: 1.125rem;
+        padding: 0.5rem;
+        --bg-opacity: 1;
+        background-color: #f7fafc;
+        background-color: rgba(247, 250, 252, var(--bg-opacity));
+        border-radius: 0.25rem;
+        width:100%;
+    }
+
+    /*42行目 */
+    .error-text{
+        font-weight: 600;
+        --text-opacity: 1;
+        color: #c53030;
+        color: rgba(197, 48, 48, var(--text-opacity));
+    }
+
+    /*45行目 */
+    .btn-frame{
+        height: 100%;
+    }
+
+    /*46行目 */
+    .submit-btn{
+        width:100%;
+        font-size: 1.25rem;
+        --bg-opacity: 1;
+        background-color: #f6ad55;
+        background-color: rgba(246, 173, 85, var(--bg-opacity));
+        --text-opacity: 1;
+        color: #fff;
+        color: rgba(255, 255, 255, var(--text-opacity));
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    /*56行目 */
+    .footer{
+        display: flex;
+        justify-content: space-between;
+        padding: 1.5rem;
+        border-bottom-width: 1px;
+        align-items: center;
+        background: linear-gradient(90deg, #6ee887 ,#00d9b4)
+    }
+</style>
