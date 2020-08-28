@@ -562,7 +562,7 @@
                     blanch: 'master',
                 },
                 messagefilter: {
-                    able: false,
+                    able: true,
                     mode: 'tag',
                     target: null,
                 },
@@ -787,7 +787,7 @@
                 this.url = "";
             },
             messageFilter(message){
-                if(!this.messagefilter.able){
+                if(!this.messagefilter.target){
                     return true;
                 }
                 if(this.messagefilter.target.charAt(0) === '#'){
