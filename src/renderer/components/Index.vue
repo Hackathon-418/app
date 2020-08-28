@@ -412,7 +412,13 @@
     import "vue-scrollto";
 
     const child_process = require("child_process");
+    const fs = require('fs');
     const path = require("path");
+
+    // OSチェック
+    const is_windows = process.platform==='win32';
+    const is_mac = process.platform==='darwin';
+    const is_linux = process.platform==='linux';
 
     const HOMEDIR =
         process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
@@ -444,7 +450,7 @@
                 file_message:'',
                 file:'',
                 url: '',
-                pwd: HOMEDIR + "\\chathub\\repository\\",       // 作業ディレクトリ
+                pwd: HOMEDIR,       // 作業ディレクトリ
                 log: null,          // 標準出力格納用
                 targetRepository: null,
                 directoryExistence: false,
@@ -516,20 +522,22 @@
                     let directory = this.targetRepository.match(/.*\/(.+?)\./);
                     if (directory && directory.length > 1)
                     {
-                        const child = child_process.exec("dir /B " + this.pwd + directory[1], {
-                            cwd: this.pwd,  // 子プロセスの現在の作業ディレクトリ（デフォルト：null）
-                            shell: true     // コマンドを実行するシェル（デフォルト： [Unix]/bin/sh [Windows]process.env.ComSpec）
-                        });
+                        if(process.platform === 'win32'){   // Windows
+                            const child = child_process.exec("dir /B " + this.pwd + directory[1], {
+                                cwd: this.pwd,  // 子プロセスの現在の作業ディレクトリ（デフォルト：null）
+                                shell: true     // コマンドを実行するシェル（デフォルト： [Unix]/bin/sh [Windows]process.env.ComSpec）
+                            });
 
-                        // 標準出力表示処理
-                        child.stdout.on("data", data => {
-                            this.directoryExistence = true;
-                        });
+                            // 標準出力表示処理
+                            child.stdout.on("data", data => {
+                                this.directoryExistence = true;
+                            });
 
-                        // 標準エラー受け取り時の処理
-                        child.stderr.on("data", data => {
-                            this.directoryExistence = false;
-                        });
+                            // 標準エラー受け取り時の処理
+                            child.stderr.on("data", data => {
+                                this.directoryExistence = false;
+                            });
+                        }
                     }
                 }
             },
@@ -700,7 +708,7 @@
 
             },
             dropFile() {
-                console.log("drop file");
+                //console.log("drop file");
                 this.file = event.dataTransfer.files[0];
                 this.file_upload_modal = true;
                 this.file_uplod_overlay = false;
@@ -717,6 +725,21 @@
         },
         mounted() {
             this.user = firebase.auth().currentUser;
+
+            if(is_windows){
+                this.pwd = this.pwd + "\\chathub\\repository\\";
+                if(! fs.existsSync(this.pwd)){
+                    const command = 'mkdir ' + this.pwd;
+                    this.exe(command, this.pwd);
+                }
+            }else{
+                this.pwd = this.pwd + "/chathub/repository/";
+                if(! fs.existsSync(this.pwd)){
+                    const command = 'mkdir -p ' + this.pwd;
+                    this.exe(command, this.pwd);
+                }
+            }
+
 
             firebase
                 .database()
