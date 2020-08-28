@@ -11,7 +11,7 @@
                 <span class="online_status"></span>
                 <div>
                     <p>{{ loginUser.name }}</p>
-                    <button class="py-2 px-4 bg-orange-500 text-white rounded font-semibold" @click="signOut">サインアウト</button>
+                    <button @click="signOut">サインアウト</button>
                 </div>
             </div>
             <div class="section_title">
@@ -497,7 +497,8 @@
             gitClone() {    // リモートリポジトリのクローン
                 const command = 'git clone ' + this.targetRepository;
                 this.exe(command, this.pwd);
-                this.directoryExistence = fs.existsSync(this.targetRepository);
+                const directory = this.targetRepository.match(/.*\/(.+?)\./);
+                this.directoryExistence = fs.existsSync(this.pwd + directory[1]);
             },
             gitPull(){    // フェッチ
                 const command = 'git pull';
@@ -596,7 +597,8 @@
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
 
                 this.targetRepository = channel.repository;
-                this.directoryExistence = fs.existsSync(this.targetRepository);
+                const directory = this.targetRepository.match(/.*\/(.+?)\./);
+                this.directoryExistence = fs.existsSync(this.pwd + directory[1]);
 
                 if (this.channel_id != "") {
                     firebase
