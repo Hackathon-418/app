@@ -459,13 +459,17 @@
                     parentDir: '',
                     ripositoryDir: '',
                     workDir: '',
-                }
+                },
+                commandProgress: 0,
             };
         },
         methods: {
-            exe(command, pwd) {  // コマンド実行関数
+            exe(command, pwd = HOMEDIR) {  // コマンド実行関数
                 console.log('実行コマンド：' + command);
                 console.log('実行ディレクトリ：' + pwd);
+
+                let result = 0;
+                let progress = 0;
 
                 // 実行部分 https://nodejs.org/api/child_process.html
                 const child = child_process.exec(command, {
@@ -476,14 +480,14 @@
                 // 標準出力表示処理
                 child.stdout.on("data", data => {
                     console.log('std : ' + data);
-                    return 1;
                 });
 
                 // 標準エラー受け取り時の処理
                 child.stderr.on("data", data => {
                     console.log('error : ' + data);
-                    return 0;
                 });
+
+                return child;
             },
             gitPush() {     // git add / commit / push
                 // コマンド定義
@@ -494,11 +498,15 @@
                 ];
 
                 // コマンド実行
-                for(const command of commands){
-                    this.exe(command, this.workDir);
-                }
-                this.messageCategory = 'upload';
-                this.sendMessage();
+                this.exe(commands[0], this.workDir).on("close",(code) => {
+                    this.exe(commands[1], this.workDir).on("close",(code) => {
+                        this.exe(commands[2], this.workDir).on("close",(code) => {
+                            console.log('push complete');
+                            this.messageCategory = 'upload';
+                            this.sendMessage();
+                        });
+                    });
+                });
             },
             gitClone() {    // リモートリポジトリのクローン
                 // コマンド定義
@@ -506,9 +514,12 @@
                 // ディレクトリの作成
                 this.makeDirectory(this.pwd + this.localRipository.parentDir);
                 // コマンド実行
-                this.exe(command, this.pwd + this.localRipository.parentDir);
-                // 更新の確認
-                this.directoryExistence = this.directoryCheck();
+                this.exe(
+                    command,
+                    this.pwd + this.localRipository.parentDir,
+                ).on("close",(code) => {    // コマンド終了後処理
+                    this.directoryExistence = fs.existsSync(this.workDir);
+                });
             },
             gitPull(){    // プル
                 const command = 'git pull';
@@ -518,10 +529,6 @@
                 const command = 'git remote add origin ' + this.targetRepository;
                 this.exe(command, this.pwd);
             },
-            directoryCheck(){
-                console.log(this.workDir);
-                return fs.existsSync(this.workDir);
-            },
             openExplorer(){ // エクスプローラでの表示
                 if(is_windows){ // Windows (Explorer)
                     const command = 'explorer.exe ' + this.workDir;
@@ -530,6 +537,10 @@
                     const command = 'open ' + this.workDir;
                     this.exe(command, HOMEDIR);
                 }
+            },
+            directoryCheck(){
+                console.log(this.workDir);
+                return fs.existsSync(this.workDir);
             },
             makeDirectory(pwd) {
                 // ディレクトリ存在確認
