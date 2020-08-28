@@ -121,6 +121,7 @@
                                     class="message_content"
                                     v-for="message in messages"
                                     :key="message.key"
+                                    v-if="messageFilter(message)"
                             >
                                 <Avator :user="userObj[message.user].email" />
                                 <div>
@@ -150,6 +151,10 @@
                             ><span v-if="directoryExistence">
                                 <button v-if="uploadAble" @click="gitPush" style="background: #ff4f4c">アップロード</button>
                                 <button v-else style="background: #919191">アップロード</button>
+                            </span>
+                            <span class="filter_area">
+                                <input type="text" v-model="messagefilter.target" placeholder="絞り込み検索"
+                                ><button class="filter_reset" @click="messagefilter.target = null" v-if="messagefilter.target">x</button>
                             </span>
                         </div>
                     </div>
@@ -447,6 +452,37 @@
                     &:hover{
                         opacity: .7;
                     }
+                    vertical-align: middle;
+                }
+                .filter_area{
+                    position: relative;
+                    float: right;
+                    width: 350px;
+                    input[type='text']{
+                        position: absolute;
+                        z-index: 10;
+                        left: 0;
+                        height: 3.75vh;
+                        line-height: 4vh;
+                        font-size: 1em;
+                        width: 250px;
+                        padding: 0 10px;
+                        background: #eeeeee;
+                        outline: none;
+                        border: solid 1px #919191;
+                        border-radius: 5px;
+                        vertical-align: middle;
+                        margin: 0;
+                    }
+                    .filter_reset{
+                        position: absolute;
+                        z-index: 1;
+                        left: 265px;
+                        height: 4vh;
+                        line-height: 4vh;
+                        padding-left: 10px;
+                        border-radius: 0 5px 5px 0;
+                    }
                 }
             }
         }
@@ -522,6 +558,14 @@
                     workDir: '',
                     older: false,
                 },
+                git: {
+                    blanch: 'master',
+                },
+                messagefilter: {
+                    able: false,
+                    mode: 'tag',
+                    target: null,
+                },
                 commandProgress: 0,
                 userObj: [],
                 progressWidth: 0,
@@ -554,19 +598,20 @@
 
                 return child;
             },
+            // Git関係
             gitPush() {     // git add / commit / push
 
+                // 文字列が入っているか
                 if(this.message === ''){
                     return;
                 }
-
+                const blanch = this.git.blanch;
                 // コマンド定義
                 const commands = [
                     'git add .',
                     'git commit -a -m \"' + this.message + '\"',
-                    'git push origin master'
+                    'git push origin ' + blanch
                 ];
-
                 // コマンド実行
                 setTimeout(
                     this.progressSet(15),
@@ -610,7 +655,7 @@
                                 1000
                             );
 
-                            this.sendMessage(commitID);
+                            this.sendMessage(commitID,blanch);
 
                             // アップロード確認処理
                             this.uploadAble = false;
@@ -667,6 +712,7 @@
                 const command = 'git remote add origin ' + this.targetRepository;
                 this.exe(command, this.pwd);
             },
+            // ディレクトリ操作
             openExplorer(){ // エクスプローラでの表示
                 if(is_windows){ // Windows (Explorer)
                     const command = 'explorer.exe ' + this.localRipository.workDir;
@@ -698,7 +744,8 @@
                 firebase.auth().signOut();
                 this.$router.push("/signin");
             },
-            sendMessage(commitID = null) { // メッセージ送信
+            // メッセージ関係
+            sendMessage(commitID = null,blanch = null) { // メッセージ送信
 
                 if(this.message === ''){
                     return;
@@ -731,12 +778,25 @@
                         category: this.messageCategory,
                         createdAt: firebase.database.ServerValue.TIMESTAMP,
                         commitID: commitID,
+                        blanch: blanch,
                     });
 
                 this.messageCategory = 'message';
 
                 this.url == "" ? this.message = "" : this.file_message = "";
                 this.url = "";
+            },
+            messageFilter(message){
+                if(!this.messagefilter.able){
+                    return true;
+                }
+                if(this.messagefilter.target.charAt(0) === '#'){
+                    return (message.category.indexOf(this.messagefilter.target.slice( 1 )) === 0 );
+                }else if(this.messagefilter.target.charAt(0) === '@'){
+                    return (this.userObj[message.user].name.indexOf(this.messagefilter.target.slice( 1 )) === 0 );
+                }else{
+                    return (message.content.indexOf(this.messagefilter.target) > -1 );
+                }
             },
             usertoObj(user){
                 this.userObj[user.user_id] = {
@@ -927,7 +987,7 @@
             closefileUploadModal() {
                 this.file_upload_modal = false;
             },
-            openCommit(commitID){
+            openCommit(commitID){   // コミットの詳細を表示
                 shell.openExternal('https://github.com/' + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir + '/commit/' + commitID);
             },
         },
