@@ -101,8 +101,13 @@
 </script>
 
 <style>
+    @font-face {
+        font-family: 'JapaneseFont';
+        src: url('~@/assets/font/KosugiMaru-Regular.ttf') format('truetype');
+    }
     /*全体のフレーム 2行目*/
     .frame{
+        font-family: 'JapaneseFont';
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -110,6 +115,7 @@
 
     /*ヘッダー 3行目*/
     .header{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: space-between;
         padding: 1rem;
@@ -120,11 +126,13 @@
 
     /*ヘッダー内div 4行目 */
     .header-frame{
+        font-family: 'JapaneseFont';
         display: flex;
     }
 
     /*ロゴイメージ ５行目*/
     .logo{
+        font-family: 'JapaneseFont';
         height: 4rem;
         padding-left: 2.5rem;
         filter : drop-shadow(1px 2px 0px #888);
@@ -132,6 +140,7 @@
 
     /*ヘッダー内 文字6行目*/
     .app-name{
+        font-family: 'JapaneseFont';
         font-weight: 600;
         --text-opacity: 1;
         color: #fff;
@@ -145,6 +154,7 @@
 
     /*メインフレーム ９行目*/
     .main-frame{
+        font-family: 'JapaneseFont';
         --bg-opacity: 1;
         background-color: #fff;
         background-color: rgba(255, 255, 255, var(--bg-opacity));
@@ -153,6 +163,7 @@
 
     /*ボックス 10行目*/
     .element-frame{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: center;
         margin-top: 4rem;
@@ -160,39 +171,46 @@
 
     /*フォームフレーム 11行目*/
     .form-frame{
+        font-family: 'JapaneseFont';
         width: 40%;
     }
     /*フォームのメインフレーム 12行目 */
     .form-main-frame{
+        font-family: 'JapaneseFont';
         width: 100%;
         text-align: center;
     }
 
     /*登録文字 13行目*/
     .enroll{
+        font-family: 'JapaneseFont';
         font-size: 2.25rem;
         font-weight: 700;
     }
 
     /*フォームの要素フレーム 14行目 28行目*/
     .form-element-frame{
+        font-family: 'JapaneseFont';
         margin-top: 1rem;
         margin-bottom: 1rem;
     }
 
     /*フォームの説明 15，16行目*/
     .from-discription{
+        font-family: 'JapaneseFont';
         font-weight: 600;
     }
 
     /*18行目 */
     .form-element-padding{
+        font-family: 'JapaneseFont';
         padding-left: 3rem;
         padding-right: 3rem;
     }
 
     /*18行目 23行目 */
     .form-element{
+        font-family: 'JapaneseFont';
         margin-bottom: 0.5rem;
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
@@ -200,6 +218,7 @@
 
     /*20行目 24行目 */
     .element-discription{
+        font-family: 'JapaneseFont';
         float: left;
         --text-opacity: 1;
         color: #718096;
@@ -210,6 +229,7 @@
 
     /*21行目 25行目 */
     .element-box{
+        font-family: 'JapaneseFont';
         font-size: 1.125rem;
         padding: 0.5rem;
         --bg-opacity: 1;
@@ -221,6 +241,7 @@
 
     /*29行目 */
     .error-message{
+        font-family: 'JapaneseFont';
         font-weight: 600;
         --text-opacity: 1;
         color: #c53030;
@@ -229,6 +250,7 @@
 
     /*32行目 */
     .submit-frame{
+        font-family: 'JapaneseFont';
         height: 100%;
         margin-top: 1.5rem;
         margin-bottom: 1.5rem;
@@ -236,6 +258,7 @@
 
     /*33行目 */
     .submit-btn{
+        font-family: 'JapaneseFont';
         font-size: 1.25rem;
         --bg-opacity: 1;
         background-color: #f6ad55;
@@ -251,6 +274,7 @@
 
     /*35行目 */
     .tologin{
+        font-family: 'JapaneseFont';
         padding-top: 1.5rem;
         padding-bottom: 1.5rem;
         --text-opacity: 1;
@@ -262,6 +286,7 @@
 
     /*43行目 */
     .footer{
+        font-family: 'JapaneseFont';
         display: flex;
         justify-content: space-between;
         padding: 1.5rem;
