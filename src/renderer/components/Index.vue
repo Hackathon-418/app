@@ -120,9 +120,9 @@
                                     v-for="message in messages"
                                     :key="message.key"
                             >
-                                <Avator :user="message.user" />
+                                <Avator :user="userObj[message.user].email" />
                                 <div>
-                                    <div class="message_user">{{ message.user }}</div>
+                                    <div class="message_user">{{ userObj[message.user].name }}</div>
                                     <div class="message_content">{{ message.content }}</div>
                                     <div v-if="message.url">
                                         <img src="https://image.flaticon.com/icons/png/512/129/129492.png" width="64px" height="64px"/>
@@ -463,6 +463,7 @@
                     older: false,
                 },
                 commandProgress: 0,
+                userObj: {},
             };
         },
         methods: {
@@ -567,7 +568,9 @@
                 firebase.auth().signOut();
                 this.$router.push("/signin");
             },
-            sendMessage() {
+            sendMessage() { // メッセージ送信
+
+                // 新規メッセージ作成
                 const newMessage = firebase
                     .database()
                     .ref("messages")
@@ -584,11 +587,12 @@
                     content = this.file_message;
                 }
 
+                // 新規メッセージを保存
                 newMessage
                     .set({
                         key: key_id,
                         content: content,
-                        user: this.user.email,
+                        user: this.user.uid,
                         url: this.url,
                         category: this.messageCategory,
                         createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -598,6 +602,12 @@
 
                 this.url == "" ? this.message = "" : this.file_message = "";
                 this.url = "";
+            },
+            usertoObj(user){
+                this.userObj[user.user_id] = {
+                    name: user.name,
+                    email: user.email
+                };
             },
             directMessage(user) {
                 this.messages = [];
@@ -616,7 +626,7 @@
 
                 this.directoryExistence = false;
                 this.channel_name = user.name;
-                this.placeholder = user.email + "へのメッセージ";
+                this.placeholder = user.name + "へのメッセージ";
                 this.targetRepository = null;
 
                 firebase
@@ -631,8 +641,6 @@
                         });
                     });
 
-                // 最下部までスクロール
-                this.scrollBottom();
             },
             channelMessage(channel) {   // チャンネルごとのメッセージ
                 this.messages = [];
@@ -641,6 +649,12 @@
                 this.channel_description = channel.description;
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
                 this.localRipository.older = false;
+
+                this.userObj = {};
+                Object.keys(this.users).forEach(
+                    user => this.usertoObj(this.users[user])
+                );
+                console.log(this.userObj);
 
                 // リポジトリ情報の変更
                 this.targetRepository = channel.repository;
@@ -683,14 +697,6 @@
                     .on("child_added", snapshot => {
                         this.messages.push(snapshot.val());
                     });
-
-                // 最下部までスクロール
-                this.scrollBottom();
-            },
-            scrollBottom() {
-                let message_area = this.$el.querySelector("#message_bottom");
-                let message_wrapper = this.$el.querySelector("#message_wrapper");
-                this.$el.querySelector("#message_bottom").scrollTop = message_wrapper.scrollHeight - message_area.clientHeight;
             },
             addChannel() {
                 const newChannel = firebase
@@ -878,6 +884,15 @@
                 .database()
                 .ref(".info/connected")
                 .off();
-        }
+        },
+        watch: {
+            users: function () {
+                this.users.forEach(
+                    user =>function(){
+                        console.log(user);
+                    }
+                );
+            }
+        },
     };
 </script>
