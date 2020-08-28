@@ -455,6 +455,11 @@
                 targetRepository: null,
                 directoryExistence: false,
                 messageCategory: 'message',
+                localRipository:{
+                    parentDir: '',
+                    ripositoryDir: '',
+                    workDir: '',
+                }
             };
         },
         methods: {
@@ -481,40 +486,47 @@
                 });
             },
             gitPush() {     // git add / commit / push
+                // コマンド定義
                 const commands = [
                     'git add .',
                     'git commit -a -m \"' + this.message + '\"',
                     'git push origin master'
                 ];
-                const directory = this.targetRepository.match(/.*\/(.+?)\./);
 
+                // コマンド実行
                 for(const command of commands){
-                    this.exe(command, this.pwd + directory[1]);
+                    this.exe(command, this.workDir);
                 }
                 this.messageCategory = 'upload';
                 this.sendMessage();
             },
             gitClone() {    // リモートリポジトリのクローン
+                // コマンド定義
                 const command = 'git clone ' + this.targetRepository;
-                this.exe(command, this.pwd);
-                const directory = this.targetRepository.match(/.*\/(.+?)\./);
-                this.directoryExistence = fs.existsSync(this.pwd + directory[1]);
+                // コマンド実行
+                this.exe(command, this.pwd + this.localRipository.parentDir);
+                // 更新の確認
+                this.directoryExistence = this.directoryCheck();
             },
-            gitPull(){    // フェッチ
+            gitPull(){    // プル
                 const command = 'git pull';
-                this.exe(command, this.pwd);
+                this.exe(command, this.workDir);
             },
             gitAddRemote(){ // リモートリポジトリの追加
                 const command = 'git remote add origin ' + this.targetRepository;
                 this.exe(command, this.pwd);
             },
+            directoryCheck(){
+                console.log(this.workDir);
+                return fs.existsSync(this.workDir);
+            },
             openExplorer(){ // エクスプローラでの表示
-                // ディレクトリ名を取得
-                let directory = this.targetRepository.match(/.*\/(.+?)\./);
-                if (directory && directory.length > 1)
-                {
-                    const command = 'explorer.exe ' + this.pwd + directory[1];
-                    this.exe(command);
+                if(is_windows){ // Windows (Explorer)
+                    const command = 'explorer.exe ' + this.workDir;
+                    this.exe(command, HOMEDIR);
+                }else{          // Mac(FInder)
+                    const command = 'open ' + this.workDir;
+                    this.exe(command, HOMEDIR);
                 }
             },
             signOut() {
@@ -596,11 +608,21 @@
                 this.channel_description = channel.description;
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
 
+                // リポジトリ情報の変更
                 this.targetRepository = channel.repository;
-                const directory = this.targetRepository.match(/.*\/(.+?)\./);
-                this.directoryExistence = fs.existsSync(this.pwd + directory[1]);
+                this.localRipository.ripositoryDir = this.targetRepository.match(/.*\/(.+?)\./)[1];
+                this.localRipository.parentDir =
+                    this.targetRepository.replace(/git@github.com:*(.*?).git*/g,"$1")
+                    .replace(new RegExp( '/' + this.localRipository.ripositoryDir,"g" ), '');
+                if(is_windows){
+                    this.workDir = this.pwd + this.localRipository.parentDir + '\\' + this.localRipository.ripositoryDir;
+                }else{
+                    this.workDir = this.pwd + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir;
+                }
 
-                if (this.channel_id != "") {
+                this.directoryExistence = this.directoryCheck();
+
+                if (this.channel_id !== "") {
                     firebase
                         .database()
                         .ref("messages")
@@ -632,8 +654,10 @@
 
                 const key_id = newChannel.key;
 
+                // directory名の抽出
                 const directory = this.channel.match(/.*\/(.+?)\./);
 
+                // チャンネル名として定義
                 newChannel
                     .set({
                         channel_name: directory[1],
