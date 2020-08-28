@@ -6,6 +6,7 @@ import firebase from "firebase/app";
 
 Vue.config.productionTip = false;
 
+// Firebase設定
 const firebaseConfig = {
   apiKey: "AIzaSyCbsJTh9uzknT8zv6QON6pBzR3VDf7iZnk",
   authDomain: "chathub-656c4.firebaseapp.com",
@@ -15,7 +16,6 @@ const firebaseConfig = {
   messagingSenderId: "803132677884",
   appId: "1:803132677884:web:4162c395236906c23d0179"
 };
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 window.firebase = firebase;

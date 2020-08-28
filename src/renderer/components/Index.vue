@@ -587,10 +587,12 @@
                                 1000
                             );
 
+                            // アップロード確認処理
+                            this.uploadAble = false;
                             clearInterval(this.checkTimer);
                             this.checkTimer = setInterval(
                                 this.checkLocal,
-                                3000
+                                5000
                             );
                         });
                     });
@@ -790,7 +792,7 @@
                 this.checkLocal();
                 this.checkTimer = setInterval(
                     this.checkLocal,
-                    3000
+                    5000
                 );
 
                 // リモートリポジトリのバージョン確認
