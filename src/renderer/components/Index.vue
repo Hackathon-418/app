@@ -143,7 +143,10 @@
                         ></textarea>
                         <div id="button_area">
                             <button @click="sendMessage" style="background: #1665d5">送信</button
-                            ><button v-if="directoryExistence" @click="gitPush" style="background: #ff4f4c">アップロード</button>
+                            ><span v-if="directoryExistence">
+                                <button v-if="uploadAble" @click="gitPush" style="background: #ff4f4c">アップロード</button>
+                                <button v-else style="background: #919191">アップロード</button>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -433,6 +436,9 @@
                     font-weight: bold;
                     color: #ffffff;
                     height: 4vh;
+                    &:hover{
+                        opacity: .7;
+                    }
                 }
             }
         }
@@ -510,6 +516,8 @@
                 commandProgress: 0,
                 userObj: [],
                 progressWidth: 0,
+                checkTimer: null,
+                uploadAble: false
             };
         },
         methods: {
@@ -536,6 +544,11 @@
                 return child;
             },
             gitPush() {     // git add / commit / push
+
+                if(this.message === ''){
+                    return;
+                }
+
                 // コマンド定義
                 const commands = [
                     'git add .',
@@ -573,14 +586,35 @@
                                 this.progressSet(0),
                                 1000
                             );
+
+                            clearInterval(this.checkTimer);
+                            this.checkTimer = setInterval(
+                                this.checkLocal,
+                                3000
+                            );
                         });
                     });
+                });
+            },
+            checkLocal(){
+                const command = 'git status --short';
+                let editFlg = false;
+                const child = this.exe(command, this.localRipository.workDir);
+                child.stdout.on("data", data => {
+                    editFlg = true;
+                });
+                child.on("close",(code) => {
+                    this.uploadAble = editFlg;
+                    if(this.uploadAble){
+                        clearInterval(this.checkTimer);
+                    }
                 });
             },
             progressSet(progress){
                 this.progressWidth = progress;
             },
             gitClone() {    // リモートリポジトリのクローン
+
                 // コマンド定義
                 const command = 'git clone ' + this.targetRepository;
                 // ディレクトリの作成
@@ -639,6 +673,10 @@
             },
             sendMessage() { // メッセージ送信
 
+                if(this.message === ''){
+                    return;
+                }
+
                 // 新規メッセージ作成
                 const newMessage = firebase
                     .database()
@@ -687,6 +725,8 @@
                 this.user.uid > user.user_id
                     ? (this.channel_id = this.user.uid + "-" + user.user_id)
                     : (this.channel_id = user.user_id + "-" + this.user.uid);
+
+                clearInterval(this.checkTimer);
 
                 if (this.channel_id != "") {
                     firebase
@@ -743,7 +783,15 @@
                 }
 
                 // ローカルリポジトリの存在確認
-                this.directoryExistence = this.directoryCheck();
+                this.directoryExistence = this.directoryCheck()
+
+                // アップロード確認処理
+                clearInterval(this.checkTimer);
+                this.checkLocal();
+                this.checkTimer = setInterval(
+                    this.checkLocal,
+                    3000
+                );
 
                 // リモートリポジトリのバージョン確認
                 if(this.directoryExistence){
