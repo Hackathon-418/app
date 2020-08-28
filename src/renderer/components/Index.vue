@@ -726,7 +726,9 @@
         mounted() {
             this.user = firebase.auth().currentUser;
 
-            if(is_windows){
+            console.log(process.platform);
+
+            if(process.platform==='win32'){
                 this.pwd = this.pwd + "\\chathub\\repository\\";
                 if(! fs.existsSync(this.pwd)){
                     const command = 'mkdir ' + this.pwd;
@@ -740,6 +742,7 @@
                 }
             }
 
+            console.log(this.pwd);
 
             firebase
                 .database()
