@@ -55,9 +55,11 @@
                     <p v-if="targetRepository">{{ channel_description }}</p>
                 </div>
                 <div id="channel_button" v-if="targetRepository">
-                    <button v-if="localRipository.older" @click="gitPull" style="background: #ff4f4c">アップデート</button>
-                    <button v-else style="background: #919191;cursor: default;">アップデート</button>
-                    <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
+                    <div v-if="directoryExistence">
+                        <button v-if="localRipository.older" @click="gitPull" style="background: #ff4f4c">アップデート</button>
+                        <button v-else style="background: #919191;cursor: default;">アップデート</button>
+                        <button v-if="directoryExistence" @click="openExplorer">フォルダを開く</button>
+                    </div>
                     <button v-else @click="gitClone">ダウンロード</button>
                 </div>
             </header>
@@ -393,7 +395,7 @@
         }
         .message_content{
             display: flex;
-            padding: 10px 0 10px 20px;
+            padding: 10px 0 10px 10px;
             img{
                 border-radius: 5px;
             }
@@ -463,16 +465,13 @@
                     older: false,
                 },
                 commandProgress: 0,
-                userObj: {},
+                userObj: [],
             };
         },
         methods: {
             exe(command, pwd = HOMEDIR) {  // コマンド実行関数
                 console.log('実行コマンド：' + command);
                 console.log('実行ディレクトリ：' + pwd);
-
-                let result = 0;
-                let progress = 0;
 
                 // 実行部分 https://nodejs.org/api/child_process.html
                 const child = child_process.exec(command, {
@@ -605,8 +604,8 @@
             },
             usertoObj(user){
                 this.userObj[user.user_id] = {
-                    name: user.name,
-                    email: user.email
+                    name : user.name,
+                    email : user.email
                 };
             },
             directMessage(user) {
@@ -650,7 +649,7 @@
                 this.placeholder = "#" + channel.channel_name + "へのメッセージ";
                 this.localRipository.older = false;
 
-                this.userObj = {};
+                this.userObj = new Object();
                 Object.keys(this.users).forEach(
                     user => this.usertoObj(this.users[user])
                 );
@@ -661,7 +660,7 @@
                 this.localRipository.ripositoryDir = this.targetRepository.match(/.*\/(.+?)\./)[1];
                 this.localRipository.parentDir =
                     this.targetRepository.replace(/git@github.com:*(.*?).git*/g,"$1")
-                    .replace(new RegExp( '/' + this.localRipository.ripositoryDir,"g" ), '');
+                        .replace(new RegExp( '/' + this.localRipository.ripositoryDir,"g" ), '');
                 // 作業ディレクトリ名を定義
                 if(is_windows){
                     this.localRipository.workDir = this.pwd + this.localRipository.parentDir + '\\' + this.localRipository.ripositoryDir;
