@@ -127,7 +127,11 @@
                                     <div class="message_user">{{ userObj[message.user].name }} <span>{{ convertTime(message.createdAt) }}</span></div>
                                     <div class="message_content">{{ message.content }}</div>
                                     <div v-if="message.category === 'message'" class="message_category message">#message</div>
-                                    <div v-if="message.category === 'upload'" class="message_category upload">#upload</div>
+                                    <div v-if="message.category === 'upload'"
+                                         class="message_category upload"
+                                         @click="openCommit(message.commitID)">
+                                        #upload
+                                    </div>
                                     <div v-if="message.url">
                                         <img src="https://image.flaticon.com/icons/png/512/129/129492.png" width="64px" height="64px"/>
                                     </div>
@@ -399,6 +403,10 @@
             }
             .upload{
                 background: #ff4f4c;
+                cursor: pointer;
+                &:hover{
+                    opacity: .7;
+                }
             }
         }
         #send_message{
@@ -466,6 +474,7 @@
     const child_process = require("child_process");
     const fs = require('fs');
     const path = require("path");
+    const shell = require('electron').shell;
 
     // OSチェック
     const is_windows = process.platform==='win32';
@@ -532,6 +541,7 @@
                 });
 
                 // 標準出力表示処理
+                /*
                 child.stdout.on("data", data => {
                     console.log('std : ' + data);
                 });
@@ -540,6 +550,7 @@
                 child.stderr.on("data", data => {
                     console.log('error : ' + data);
                 });
+                 */
 
                 return child;
             },
@@ -577,15 +588,29 @@
                             this.progressSet(90),
                             1000
                         );
-                        this.exe(commands[2], this.localRipository.workDir).on("close",(code) => {
+
+                        const push_child = this.exe(commands[2], this.localRipository.workDir);
+
+                        let commitID = null;
+
+                        push_child.stderr.on("data", data => {
+                            console.log(data);
+                            console.log(data.indexOf('..'));
+                            console.log('commitID : ' + data.substring(data.indexOf('..') + 2).substring(0,7));
+                            commitID = data.substring(data.indexOf('..') + 2).substring(0,7);
+                        });
+
+                        push_child.on("close",(code) => {
                             this.progressWidth = 100;
-                            console.log('push complete');
                             this.messageCategory = 'upload';
-                            this.sendMessage();
+
+                            // プログレスバーをリセット
                             setTimeout(
                                 this.progressSet(0),
                                 1000
                             );
+
+                            this.sendMessage(commitID);
 
                             // アップロード確認処理
                             this.uploadAble = false;
@@ -673,7 +698,7 @@
                 firebase.auth().signOut();
                 this.$router.push("/signin");
             },
-            sendMessage() { // メッセージ送信
+            sendMessage(commitID = null) { // メッセージ送信
 
                 if(this.message === ''){
                     return;
@@ -704,7 +729,8 @@
                         user: this.user.uid,
                         url: this.url,
                         category: this.messageCategory,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        commitID: commitID,
                     });
 
                 this.messageCategory = 'message';
@@ -900,7 +926,10 @@
             },
             closefileUploadModal() {
                 this.file_upload_modal = false;
-            }
+            },
+            openCommit(commitID){
+                shell.openExternal('https://github.com/' + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir + '/commit/' + commitID);
+            },
         },
         mounted() {
             this.user = firebase.auth().currentUser;
