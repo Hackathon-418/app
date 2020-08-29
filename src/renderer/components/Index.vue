@@ -380,6 +380,11 @@
             width: 100%;
             overflow-y: scroll;
             font-size: 1em;
+            img{
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+            }
             .message_user{
                 font-weight: bold;
                 margin-left: 10px;
