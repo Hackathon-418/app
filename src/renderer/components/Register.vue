@@ -280,8 +280,11 @@
         --text-opacity: 1;
         color: #dd6b20;
         color: rgba(221, 107, 32, var(--text-opacity));
-        font-size: 1.125rem;
+        font-size: 1em;
         font-weight: 600;
+    }
+    .tologin :link, .tologin :visited, router-link{
+        color: #888888;
     }
 
     /*43行目 */
