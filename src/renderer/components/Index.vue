@@ -4,10 +4,10 @@
         <nav>
             <div id="logo_area">
                 <img src="../assets/logo.png">
-                <h1>ChatHub</h1>
+                <h1>Panvic</h1>
             </div>
             <div id="user_info">
-                <Avator :user="user.email" />
+                <Avator :user="user.icon" />
                 <span class="online_status"></span>
                 <div>
                     <p>{{ loginUser.name }}</p>
@@ -73,15 +73,15 @@
             >
                 <div
                         class="h-full z-10 absolute w-full flex justify-center items-center"
-                        v-show="file_uplod_overlay"
+                        v-show="file.uplod_overlay"
                         style="pointer-events: none"
                 >
-                    <p class="font-bold text-4xl"> Chat Hubへアップロードする</p>
+                    <p class="font-bold text-4xl">ファイルを送信する</p>
                 </div>
                 <div
                         class="z-10 fixed top-0 left-0 h-full w-full flex items-center justify-center"
                         style="background-color:rgba(0,0,0,0.5)"
-                        v-show="file_upload_modal"
+                        v-show="file.upload_modal"
                         @click="closefileUploadModal"
                 >
                     <div class="z-20 bg-white text-gray-900 w-1/3 rounded-md" @click.stop>
@@ -97,7 +97,7 @@
                 <textarea
                         class="w-full rounded border-gray-900 border-solid border p-3"
                         placeholder="ファイルに関するメッセージを追加する"
-                        v-model="file_message"
+                        v-model="file.message"
                 />
                             </div>
                             <div class="bg-gray-200 p-3 border border-gray-400 rounded mb-4">
@@ -123,7 +123,7 @@
                                     :key="message.key"
                                     v-if="messageFilter(message)"
                             >
-                                <Avator :user="userObj[message.user].email" />
+                                <Avator :user="userObj[message.user].icon" />
                                 <div>
                                     <div class="message_user">{{ userObj[message.user].name }} <span>{{ convertTime(message.createdAt) }}</span></div>
                                     <div class="message_content">{{ message.content }}</div>
@@ -147,7 +147,7 @@
                                 v-model="message"
                         ></textarea>
                         <div id="button_area">
-                            <button @click="sendMessage" style="background: #1665d5">送信</button
+                            <button @click="sendMessage" style="background: $main-color">送信</button
                             ><span v-if="directoryExistence">
                                 <button v-if="uploadAble" @click="gitPush" style="background: #ff4f4c">アップロード</button>
                                 <button v-else style="background: #919191">アップロード</button>
@@ -165,10 +165,12 @@
 </template>
 
 <style lang="scss">
+    $main-color: #222222;
     @font-face {
         font-family: 'JapaneseFont';
         src: url('~@/assets/font/KosugiMaru-Regular.ttf') format('truetype');
     }
+    
     #index{
         display: flex;
         font-family: 'JapaneseFont';
@@ -178,8 +180,7 @@
         display: inline-block;
         min-width: 240px;
         height: 100vh;
-        padding-left: 15px;
-        background: #1665d5;
+        background: $main-color;
         vertical-align: top;
         color: #FFFFFF;
         #logo_area{
@@ -227,7 +228,7 @@
                     height: 20px;
                     line-height: 20px;
                     font-size: 0.7em;
-                    color: #1665d5;
+                    color: $main-color;
                     font-weight: bold;
                     &:hover{
                         opacity: .8;
@@ -278,7 +279,7 @@
                     display: inline-block;
                     width: 100px;
                     padding: 0 10px;
-                    background: #1665d5;
+                    background: $main-color;
                     border-radius: 5px;
                     height: 40px;
                     color: #FFFFFF;
@@ -307,7 +308,7 @@
         }
         .section_title{
             display: flex;
-            margin: 10px 0;
+            margin: 10px 0 10px 15px;
             h2{
                 vertical-align: middle;
                 line-height: 24px;
@@ -327,7 +328,11 @@
             line-height: 1.7em;
             font-size: 1em;
             cursor: pointer;
-            margin-left: 10px;
+            padding-left: 25px;
+
+            &:hover{
+                background: rgba(255,255,255,.2)
+            }
         }
     }
     #channel_area{
@@ -358,7 +363,7 @@
                 display: inline-block;
                 width: auto;
                 padding: 0 1vw;
-                background: #1665d5;
+                background: $main-color;
                 border-radius: 5px;
                 height: 5vh;
                 color: #FFFFFF;
@@ -399,7 +404,7 @@
             .message_category{
                 margin: 0 0 0 10px;
                 display: inline-block;
-                background: #1665d5;
+                background: $main-color;
                 height: 15px;
                 border-radius: 15px;
                 padding: 3px 15px;
@@ -409,7 +414,7 @@
                 width: auto;
             }
             .message{
-                background: #1665d5;
+                background: $main-color;
             }
             .upload{
                 background: #ff4f4c;
@@ -547,11 +552,6 @@
                 connection_key: "",
                 connectionRef: firebase.database().ref("connections"),
                 connections: [],
-                file_uplod_overlay: false,
-                file_upload_modal: false,
-                file_message:'',
-                file:'',
-                url: '',
                 pwd: HOMEDIR,       // 作業ディレクトリ
                 log: null,          // 標準出力格納用
                 targetRepository: null,
@@ -570,6 +570,13 @@
                     able: true,
                     mode: 'tag',
                     target: null,
+                },
+                file:{
+                    uplod_overlay: false,
+                    upload_modal: false,
+                    message:'',
+                    file:'',
+                    url: '',
                 },
                 commandProgress: 0,
                 userObj: [],
@@ -727,7 +734,7 @@
                     this.exe(command, HOMEDIR);
                 }
             },
-            directoryCheck(){
+            directoryCheck(){   // ディレクトリの存在確認
                 return fs.existsSync(this.localRipository.workDir);
             },
             makeDirectory(pwd) {
@@ -767,10 +774,10 @@
 
                 let content = "";
 
-                if (this.url == "") {
+                if (this.file.url == "") {
                     content = this.message;
                 } else {
-                    content = this.file_message;
+                    content = this.file.message;
                 }
 
                 // 新規メッセージを保存
@@ -779,7 +786,7 @@
                         key: key_id,
                         content: content,
                         user: this.user.uid,
-                        url: this.url,
+                        url: this.file.url,
                         category: this.messageCategory,
                         createdAt: firebase.database.ServerValue.TIMESTAMP,
                         commitID: commitID,
@@ -788,8 +795,8 @@
 
                 this.messageCategory = 'message';
 
-                this.url == "" ? this.message = "" : this.file_message = "";
-                this.url = "";
+                this.file.url == "" ? this.message = "" : this.file.message = "";
+                this.file.url = "";
             },
             messageFilter(message){
                 if(!this.messagefilter.target){
@@ -806,7 +813,8 @@
             usertoObj(user){
                 this.userObj[user.user_id] = {
                     name : user.name,
-                    email : user.email
+                    email : user.email,
+                    icon : user.icon
                 };
             },
             convertTime(unixTime){
@@ -860,6 +868,7 @@
                 Object.keys(this.users).forEach(
                     user => this.usertoObj(this.users[user])
                 );
+                console.log('users:');
                 console.log(this.userObj);
 
                 // リポジトリ情報の変更
@@ -876,7 +885,7 @@
                 }
 
                 // ローカルリポジトリの存在確認
-                this.directoryExistence = this.directoryCheck()
+                this.directoryExistence = this.directoryCheck();
 
                 // アップロード確認処理
                 clearInterval(this.checkTimer);
@@ -969,9 +978,9 @@
                     },
                     () => {
                         storageRef.getDownloadURL().then(url => {
-                            this.url = url;
+                            this.file.url = url;
                             this.sendMessage();
-                            this.file_upload_modal = false;
+                            this.file.upload_modal = false;
                         });
                     }
                 );
@@ -979,18 +988,18 @@
             },
             dropFile() {
                 //console.log("drop file");
-                this.file = event.dataTransfer.files[0];
-                this.file_upload_modal = true;
-                this.file_uplod_overlay = false;
+                this.file.file = event.dataTransfer.files[0];
+                this.file.upload_modal = true;
+                this.file.uplod_overlay = false;
             },
             dragEnter() {
-                this.file_uplod_overlay = true;
+                this.file.uplod_overlay = true;
             },
             dragLeave() {
-                this.file_uplod_overlay = false;
+                this.file.uplod_overlay = false;
             },
             closefileUploadModal() {
-                this.file_upload_modal = false;
+                this.file.upload_modal = false;
             },
             openCommit(commitID){   // コミットの詳細を表示
                 shell.openExternal('https://github.com/' + this.localRipository.parentDir + '/' + this.localRipository.ripositoryDir + '/commit/' + commitID);
@@ -1109,7 +1118,7 @@
             users: function () {
                 this.users.forEach(
                     user =>function(){
-                        console.log(user);
+                        console.log('user' + user);
                     }
                 );
             }
